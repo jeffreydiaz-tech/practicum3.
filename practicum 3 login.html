@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Puzzle Nest - Interactive Learning</title>
+    <style>
+        /* Base Reset & Styling */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f3f4f6;
+            color: #1f2937;
+            min-height: 100vh;
+        }
+
+        /* Navigation Bar */
+        .navbar {
+            background-color: #ffffff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #4f46e5;
+        }
+
+        .btn-logout {
+            background-color: #ef4444;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .btn-logout:hover {
+            background-color: #dc2626;
+        }
+
+        /* Page Layout & Container */
+        .container {
+            max-width: 600px;
+            margin: 2.5rem auto;
+            padding: 0 1rem;
+        }
+
+        .card {
+            background: #ffffff;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            margin-bottom: 0.5rem;
+            color: #111827;
+        }
+
+        .subtitle {
+            color: #6b7280;
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+        }
+
+        /* Form Controls */
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #4f46e5;
+        }
+
+        /* Buttons & Anchors */
+        .btn-primary {
+            display: block;
+            width: 100%;
+            background-color: #4f46e5;
+            color: white;
+            border: none;
+            padding: 0.75rem;
+            font-size: 1rem;
+            border-radius: 6px;
+            font-weight: 600;
+            text-align: center;
+            text-decoration: none;
+            cursor: pointer;
+            margin-top: 0.5rem;
+        }
+
+        .btn-primary:hover {
+            background-color: #4338ca;
+        }
+
+        .footer-link {
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+            color: #6b7280;
+        }
+
+        .footer-link a {
+            color: #4f46e5;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .footer-link a:hover {
+            text-decoration: underline;
+        }
+
+        /* Dashboard Elements */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-title {
+            font-size: 0.75rem;
+            color: #6b7280;
+            text-transform: uppercase;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #4f46e5;
+            margin-top: 0.25rem;
+        }
+
+        .puzzle-box {
+            text-align: center;
+        }
+
+        .badge {
+            background: #e0e7ff;
+            color: #4338ca;
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        .puzzle-header h3 {
+            margin: 1rem 0 1.5rem 0;
+            font-size: 1.25rem;
+        }
+
+        .puzzle-body {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .puzzle-body input {
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        /* --- PURE CSS MULTI-PAGE SWITCHING MECHANISM --- */
+        /* Hide all page sections by default */
+        .page-view {
+            display: none;
+        }
+
+        /* Default view when no hash URL parameter is active */
+        #login-view {
+            display: block;
+        }
+
+        /* Show active page section depending on the current URL hash target */
+        #login-view:target,
+        #signup-view:target,
+        #dashboard-view:target {
+            display: block;
+        }
+
+        /* Hide default login view when another view target is activated */
+        body:has(#signup-view:target) #login-view,
+        body:has(#dashboard-view:target) #login-view {
+            display: none;
+        }
+
+        /* Hide logout button on login/signup views */
+        .logout-wrapper {
+            display: none;
+        }
+        body:has(#dashboard-view:target) .logout-wrapper {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navbar -->
+    <header class="navbar">
+        <div class="logo">
+            <h2>🧩 Puzzle Nest</h2>
+        </div>
+        <div class="logout-wrapper">
+            <a href="#login-view" class="btn-logout">Logout</a>
+        </div>
+    </header>
+
+    <main class="container">
+
+        <!-- 1. LOGIN PAGE VIEW -->
+        <section id="login-view" class="card page-view">
+            <h2>Login to Your Account</h2>
+            <p class="subtitle">Enter your details to access your learning dashboard.</p>
+            
+            <form action="#dashboard-view">
+                <div class="form-group">
+                    <label for="loginUser">Username or Email</label>
+                    <input type="text" id="loginUser" placeholder="e.g. student123" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPass">Password</label>
+                    <input type="password" id="loginPass" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn-primary">Login</button>
+            </form>
+
+            <div class="footer-link">
+                Don't have an account? <a href="#signup-view">Sign Up Here</a>
+            </div>
+        </section>
+
+
+        <!-- 2. SIGNUP PAGE VIEW -->
+        <section id="signup-view" class="card page-view">
+            <h2>Create New Account</h2>
+            <p class="subtitle">Join Puzzle Nest and start solving today!</p>
+            
+            <form action="#dashboard-view">
+                <div class="form-group">
+                    <label for="signupName">Full Name</label>
+                    <input type="text" id="signupName" placeholder="e.g. Alex Smith" required>
+                </div>
+                <div class="form-group">
+                    <label for="signupUser">Choose Username</label>
+                    <input type="text" id="signupUser" placeholder="e.g. alex_puzzles" required>
+                </div>
+                <div class="form-group">
+                    <label for="signupPass">Password</label>
+                    <input type="password" id="signupPass" placeholder="••••••••" required>
+                </div>
+                <div class="form-group">
+                    <label for="skillLevel">Initial Difficulty</label>
+                    <select id="skillLevel">
+                        <option value="Beginner">Beginner</option>
+                        <option value="Intermediate">Intermediate</option>
+                        <option value="Advanced">Advanced</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-primary">Create Account</button>
+            </form>
+
+            <div class="footer-link">
+                Already have an account? <a href="#login-view">Login Here</a>
+            </div>
+        </section>
+
+
+        <!-- 3. DASHBOARD PAGE VIEW -->
+        <section id="dashboard-view" class="page-view">
+            <!-- Stats Row -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-title">Total XP Points</div>
+                    <div class="stat-value">150</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">Puzzles Solved</div>
+                    <div class="stat-value">2</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">Current Level</div>
+                    <div class="stat-value">Beginner</div>
+                </div>
+            </div>
+
+            <!-- Interactive Puzzle Playground Card -->
+            <div class="card puzzle-box">
+                <div class="puzzle-header">
+                    <span class="badge">MATH PUZZLE</span>
+                    <h3>What is the missing number? 2, 4, 8, 16, [ ? ]</h3>
+                </div>
+
+                <div class="puzzle-body">
+                    <form action="#dashboard-view">
+                        <input type="text" placeholder="Type your answer here..." required>
+                        <button type="submit" class="btn-primary">Submit Answer</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+</body>
+</html>
